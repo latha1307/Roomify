@@ -27,6 +27,10 @@ export const Upload = ({ onComplete }: UploadProps) => {
     setProgress(0);
 
     const reader = new FileReader();
+    reader.onerror = () => {
+        setFile(null);
+        setProgress(0);
+    }
 
     reader.onload = () => {
       const base64String = reader.result as string;
@@ -90,7 +94,8 @@ export const Upload = ({ onComplete }: UploadProps) => {
     setIsDragging(false);
 
     const files = e.dataTransfer.files;
-    if (files && files.length > 0) {
+    const allowedTypes = ["image/jpeg", "image/png"];
+    if (files && files.length > 0 && allowedTypes.includes(files[0].type)) {
       processFile(files[0]);
     }
   };
