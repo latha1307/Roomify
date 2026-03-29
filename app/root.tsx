@@ -51,6 +51,7 @@ const DEFAULT_AUTH_STATE: AuthState = {
 
 export default function App() {
   const [authState, setAuthState] = useState<AuthState>(DEFAULT_AUTH_STATE);
+  const [authLoading, setAuthLoading] = useState(false);
 
   const refreshAuth = async () => {
     try {
@@ -62,24 +63,45 @@ export default function App() {
       })
 
       return !!user;
-    } catch {
+    } catch (error) {
+      console.error("refreshAuth failed", error);
       setAuthState(DEFAULT_AUTH_STATE);
       return false;
     }
   }
 
   useEffect(() => {
-    refreshAuth()
-  })
+    refreshAuth();
+  }, []);
 
   const signIn = async () => {
-    await puterSignIn();
-    return await refreshAuth();
+    if (authLoading) return false;
+    setAuthLoading(true);
+
+    try {
+      await puterSignIn();
+      return await refreshAuth();
+    } catch (error) {
+      console.error("Puter signIn failed", error);
+      return false;
+    } finally {
+      setAuthLoading(false);
+    }
   }
 
   const signOut = async () => {
-    await puterSignOut();
-    return await refreshAuth();
+    if (authLoading) return false;
+    setAuthLoading(true);
+
+    try {
+      await puterSignOut();
+      return await refreshAuth();
+    } catch (error) {
+      console.error("Puter signOut failed", error);
+      return false;
+    } finally {
+      setAuthLoading(false);
+    }
   }
 
   return (
